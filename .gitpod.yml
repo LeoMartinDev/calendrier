@@ -1,0 +1,17 @@
+image: gitpod/workspace-mongodb
+
+ports:
+  - port: 27017
+    onOpen: ignore
+
+tasks:
+  - name: db
+    # starting mongo in background, so it doesn't block prebuilds
+    before: >
+      mkdir -p /workspace/data &&
+      (mongod --dbpath /workspace/data &)
+  - init: >
+      npm ci &&
+      gp sync-done npm-ci &&
+      gp await-port 27017 &&
+      mongo --eval "db.fsyncLock(); db.fsyncUnlock()"
